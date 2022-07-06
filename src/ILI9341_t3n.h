@@ -97,6 +97,7 @@
 
 #ifdef __cplusplus
 #include "Arduino.h"
+#include <ChRt.h>
 #include <DMAChannel.h>
 #include <SPI.h>
 
@@ -191,6 +192,8 @@
 #define CL(_r, _g, _b) ((((_r)&0xF8) << 8) | (((_g)&0xFC) << 3) | ((_b) >> 3))
 
 #define sint16_t int16_t
+
+#define ILI9341_UPDATE_EVENT EVENT_MASK(1)
 
 // Lets see about supporting Adafruit fonts as well?
 #if __has_include(<gfxfont.h>)
@@ -501,7 +504,7 @@ public:
   useFrameBuffer(boolean b);  // use the frame buffer?  First call will allocate
   void freeFrameBuffer(void); // explicit call to release the buffer
   void updateScreen(void);    // call to say update the screen now.
-  bool updateScreenAsync(bool update_cont = false); // call to say update the
+  bool updateScreenAsync(thread_t *tp = NULL, bool update_cont = false); // call to say update the
                                                     // screen optinoally turn
                                                     // into continuous mode.
   void waitUpdateAsyncComplete(void);
@@ -664,6 +667,7 @@ protected:
   static ILI9341_t3n *_dmaActiveDisplay; // Use pointer to this as a way to get
                                          // back to object...
 #endif
+  volatile thread_t* _tp = 0;
   volatile uint8_t _dma_state = 0;            // DMA status
   volatile uint32_t _dma_frame_count = 0;     // Can return a frame count...
   volatile uint16_t _dma_sub_frame_count = 0; // Can return a frame count...
