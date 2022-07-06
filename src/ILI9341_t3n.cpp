@@ -156,6 +156,7 @@ void ILI9341_t3n::process_dma_interrupt(void) {
       waitFifoNotFull();
       writecommand_last(ILI9341_NOP);
       endSPITransaction();
+      chEvtSignal(_tp, ILI9341_UPDATE_EVENT);
       _dma_state &= ~ILI9341_DMA_ACTIVE;
       _dmaActiveDisplay = 0; // We don't have a display active any more...
     }
@@ -261,6 +262,7 @@ void ILI9341_t3n::process_dma_interrupt(void) {
 
     writecommand_last(ILI9341_NOP);
     endSPITransaction();
+    chEvtSignal(_tp, ILI9341_UPDATE_EVENT);
     _dma_state &= ~ILI9341_DMA_ACTIVE;
     _dmaActiveDisplay = 0; // We don't have a display active any more...
     _dma_sub_frame_count = 0;
@@ -691,7 +693,6 @@ void ILI9341_t3n::dumpDMASettings() {
 }
 
 bool ILI9341_t3n::updateScreenAsync(
-    thread_t *tp,
     bool update_cont) // call to say update the screen now.
 {
 // Not sure if better here to check flag or check existence of buffer.
@@ -774,7 +775,6 @@ bool ILI9341_t3n::updateScreenAsync(
   _dma_frame_count = 0; // Set frame count back to zero.
   _dmaActiveDisplay = this;
   _dma_state |= ILI9341_DMA_ACTIVE;
-  _tp = tp;
   _pkinetisk_spi->RSER |=
       SPI_RSER_TFFF_DIRS |
       SPI_RSER_TFFF_RE; // Set DMA Interrupt Request Select and Enable register
