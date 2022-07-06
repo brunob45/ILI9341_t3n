@@ -127,6 +127,7 @@ extern void dumpDMA_TCD(DMABaseClass *dmabc, const char *psx_title);
 #endif
 
 void ILI9341_t3n::process_dma_interrupt(void) {
+  CH_IRQ_PROLOGUE();
 #ifdef DEBUG_ASYNC_LEDS
   digitalWriteFast(DEBUG_PIN_2, HIGH);
 #endif
@@ -156,9 +157,12 @@ void ILI9341_t3n::process_dma_interrupt(void) {
       waitFifoNotFull();
       writecommand_last(ILI9341_NOP);
       endSPITransaction();
-      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
       _dma_state &= ~ILI9341_DMA_ACTIVE;
       _dmaActiveDisplay = 0; // We don't have a display active any more...
+
+      chSysLockFromISR();
+      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
+      chSysUnlockFromISR();
     }
     _dma_sub_frame_count = 0; // set as partial frame.
   }
@@ -223,10 +227,13 @@ void ILI9341_t3n::process_dma_interrupt(void) {
       //	_pimxrt_spi->FCR, _spi_fcr_save, _pimxrt_spi->TCR);
       writecommand_last(ILI9341_NOP);
       endSPITransaction();
-      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
       _dma_state &= ~ILI9341_DMA_ACTIVE;
       _dmaActiveDisplay[_spi_num] =
           0; // We don't have a display active any more...
+
+      chSysLockFromISR();
+      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
+      chSysUnlockFromISR();
     } else {
       // Lets try to flush out memory
       if (_frame_complete_callback)
@@ -262,7 +269,6 @@ void ILI9341_t3n::process_dma_interrupt(void) {
 
     writecommand_last(ILI9341_NOP);
     endSPITransaction();
-    chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
     _dma_state &= ~ILI9341_DMA_ACTIVE;
     _dmaActiveDisplay = 0; // We don't have a display active any more...
     _dma_sub_frame_count = 0;
@@ -272,6 +278,9 @@ void ILI9341_t3n::process_dma_interrupt(void) {
     digitalWriteFast(DEBUG_PIN_3, LOW);
 #endif
 
+      chSysLockFromISR();
+      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
+      chSysUnlockFromISR();
   } else {
     uint16_t w;
     if (_dma_count_remaining) { // Still part of one frome.
@@ -309,6 +318,7 @@ void ILI9341_t3n::process_dma_interrupt(void) {
 #ifdef DEBUG_ASYNC_LEDS
   digitalWriteFast(DEBUG_PIN_2, LOW);
 #endif
+  CH_IRQ_EPILOGUE();
 }
 
 #endif
