@@ -156,7 +156,7 @@ void ILI9341_t3n::process_dma_interrupt(void) {
       waitFifoNotFull();
       writecommand_last(ILI9341_NOP);
       endSPITransaction();
-      chEvtSignal(_tp, ILI9341_UPDATE_EVENT);
+      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
       _dma_state &= ~ILI9341_DMA_ACTIVE;
       _dmaActiveDisplay = 0; // We don't have a display active any more...
     }
@@ -223,7 +223,7 @@ void ILI9341_t3n::process_dma_interrupt(void) {
       //	_pimxrt_spi->FCR, _spi_fcr_save, _pimxrt_spi->TCR);
       writecommand_last(ILI9341_NOP);
       endSPITransaction();
-      chEvtSignal(_tp, ILI9341_UPDATE_EVENT);
+      chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
       _dma_state &= ~ILI9341_DMA_ACTIVE;
       _dmaActiveDisplay[_spi_num] =
           0; // We don't have a display active any more...
@@ -262,7 +262,7 @@ void ILI9341_t3n::process_dma_interrupt(void) {
 
     writecommand_last(ILI9341_NOP);
     endSPITransaction();
-    chEvtSignal(_tp, ILI9341_UPDATE_EVENT);
+    chEvtSignalI(_tp, ILI9341_UPDATE_EVENT);
     _dma_state &= ~ILI9341_DMA_ACTIVE;
     _dmaActiveDisplay = 0; // We don't have a display active any more...
     _dma_sub_frame_count = 0;
