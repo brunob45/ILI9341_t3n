@@ -504,7 +504,6 @@ public:
   useFrameBuffer(boolean b);  // use the frame buffer?  First call will allocate
   void freeFrameBuffer(void); // explicit call to release the buffer
   void updateScreen(void);    // call to say update the screen now.
-  void attachThread(thread_t *tp) { _tp = tp; }
   bool updateScreenAsync(bool update_cont = false); // call to say update the
                                                     // screen optinoally turn
                                                     // into continuous mode.

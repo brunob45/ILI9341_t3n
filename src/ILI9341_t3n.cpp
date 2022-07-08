@@ -712,6 +712,8 @@ bool ILI9341_t3n::updateScreenAsync(
   if (!_use_fbtft)
     return false;
 
+  _tp = chThdGetSelfX();
+
 #if defined(__MK64FX512__) // If T3.5 only allow on SPI...
   // The T3.5 DMA to SPI has issues with preserving stuff like we want 16 bit
   // mode
@@ -934,9 +936,9 @@ void ILI9341_t3n::waitUpdateAsyncComplete(void) {
   digitalWriteFast(DEBUG_PIN_3, HIGH);
 #endif
 
-  while ((_dma_state & ILI9341_DMA_ACTIVE)) {
-    // asm volatile("wfi");
-  };
+  if ((_dma_state & ILI9341_DMA_ACTIVE)) {
+    chEvtWaitAny(ILI9341_UPDATE_EVENT);
+  }
 #ifdef DEBUG_ASYNC_LEDS
   digitalWriteFast(DEBUG_PIN_3, LOW);
 #endif
